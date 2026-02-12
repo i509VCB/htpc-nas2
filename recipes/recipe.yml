@@ -1,45 +1,51 @@
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
-# image will be published to ghcr.io/<user>/<name>
 name: htpc-nas2
-# description will be included in the image's metadata
-description: This is my personal OS image.
-
-# the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: 42 # latest is also supported if you want new updates ASAP
+description: A fedora image for i509vcb's combo HTPC and NAS
+base-image: ghcr.io/blue-build/base-images/fedora-base
+image-version: 43
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
-  - type: files
-    files:
-      - source: system
-        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+  # ZFS has to be installed manually with a containerfile.
+  #
+  # This also replaces the kernel with one compatible with the ZFS module (usually a downgrade).
+  - type: containerfile
+    containerfiles:
+      - zfs
 
   - type: dnf
-    repos:
-      copr:
-        - atim/starship
     install:
       packages:
-        - micro
-        - starship
-    remove:
+        - fastfetch
+        - firefox # still has some issues as a flatpak
+        - nano
+        - steam # still has issues as a flatpak
+    group-install:
       packages:
-        # example: removing firefox (in favor of the flatpak)
-        # "firefox" is the main package, "firefox-langpacks" is a dependency
-        - firefox
-        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+        - kde-desktop
+      exclude:
+        - krdp
+        - krfb
 
   - type: default-flatpaks
     configurations:
-      - notify: true # Send notification after install/uninstall is finished (true/false)
-        scope: system
-        # If no repo information is specified, Flathub will be used by default
-        install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
-          - org.gnome.Loupe
-      - scope: user # Also add Flathub user repo, but no user packages
+      - scope: system
+        repo:
+          url: https://dl.flathub.org/repo/flathub.flatpakrepo
+          title: Flathub (system)
+        install:
+          - org.kde.elisa
+          - com.usebottles.bottles
 
-  - type: signing # this sets up the proper policy & signing files for signed images to work fully
+  - type: os-release
+    properties:
+      ID: i5_htpc_nas
+      ID_LIKE: fedora
+      NAME: i5's HTPC and NAS
+      PRETTY_NAME: i5's HTPC and NAS image
+
+  # ZFS means we want to always regenerate initramfs (even though I don't run the root fs on ZFS
+  - type: initramfs
+  - type: signing

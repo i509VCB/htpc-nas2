@@ -1,0 +1,3 @@
+COPY --from=ghcr.io/ublue-os/akmods:coreos-stable-43 / /tmp/akmods-common
+COPY --from=ghcr.io/ublue-os/akmods-zfs:coreos-stable-43 / /tmp/akmods-zfs
+RUN --mount=type=bind,source=files,dst=/tmp/files /tmp/files/scripts/zfs.sh
