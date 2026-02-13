@@ -46,6 +46,12 @@ modules:
       NAME: i5's HTPC and NAS
       PRETTY_NAME: i5's HTPC and NAS image
 
+  # Enable SDDM service to setup user.
+  - type: systemd 
+    system:
+      enabled:
+        - sddm.service
+
   # ZFS means we want to always regenerate initramfs (even though I don't run the root fs on ZFS
   - type: initramfs
   - type: signing
