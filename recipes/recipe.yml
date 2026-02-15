@@ -50,6 +50,7 @@ modules:
   - type: systemd 
     system:
       enabled:
+        - avahi-daemon.service
         - sddm.service
 
   # The default fedora image goes to multi-user.target. We want the graphical session to start instead.
