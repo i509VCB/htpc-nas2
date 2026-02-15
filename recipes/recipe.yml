@@ -52,6 +52,11 @@ modules:
       enabled:
         - sddm.service
 
+  # The default fedora image goes to multi-user.target. We want the graphical session to start instead.
+  - type: script
+    snippets:
+      - sudo systemctl set-default graphical.target
+
   # ZFS means we want to always regenerate initramfs (even though I don't run the root fs on ZFS
   - type: initramfs
   - type: signing
